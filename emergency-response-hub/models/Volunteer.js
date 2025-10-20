@@ -1,8 +1,15 @@
 module.exports = (sequelize, DataTypes) => {
   const Volunteer = sequelize.define('Volunteer', {
     skills: {
-      type: DataTypes.ARRAY(DataTypes.STRING),
-      defaultValue: []
+      type: DataTypes.TEXT,
+      defaultValue: '[]', // Store as JSON string
+      get() {
+        const rawValue = this.getDataValue('skills');
+        return rawValue ? JSON.parse(rawValue) : [];
+      },
+      set(value) {
+        this.setDataValue('skills', JSON.stringify(value));
+      }
     },
     availability: {
       type: DataTypes.BOOLEAN,
