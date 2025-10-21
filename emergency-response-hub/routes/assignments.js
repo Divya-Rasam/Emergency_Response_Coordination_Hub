@@ -85,7 +85,7 @@ router.get('/', authenticateToken, async (req, res) => {
     res.json(assignments);
   } catch (error) {
     console.error('Get assignments error:', error);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: error.message || 'Server error' });
   }
 });
 
@@ -133,14 +133,21 @@ router.get('/:id', authenticateToken, async (req, res) => {
     res.json(assignment);
   } catch (error) {
     console.error('Get assignment error:', error);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: error.message || 'Server error' });
   }
 });
 
 // Create a new assignment (coordinators only)
 router.post('/', authenticateToken, isCoordinator, async (req, res) => {
   try {
+    console.log('Creating assignment with data:', req.body);
+    
     const { incident_id, volunteer_id } = req.body;
+
+    // Validate required fields
+    if (!incident_id || !volunteer_id) {
+      return res.status(400).json({ message: 'Missing required fields' });
+    }
 
     // Check if incident exists
     const incident = await Incident.findByPk(incident_id);
@@ -173,6 +180,8 @@ router.post('/', authenticateToken, isCoordinator, async (req, res) => {
       volunteer_id,
       assigned_by: req.user.id
     });
+
+    console.log('Assignment created:', assignment.toJSON());
 
     // Update volunteer status
     await volunteer.update({ status: 'assigned' });
@@ -209,7 +218,7 @@ router.post('/', authenticateToken, isCoordinator, async (req, res) => {
     });
   } catch (error) {
     console.error('Create assignment error:', error);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: error.message || 'Server error' });
   }
 });
 
@@ -257,7 +266,7 @@ router.put('/:id', authenticateToken, async (req, res) => {
     });
   } catch (error) {
     console.error('Update assignment error:', error);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: error.message || 'Server error' });
   }
 });
 
@@ -286,7 +295,7 @@ router.delete('/:id', authenticateToken, isCoordinator, async (req, res) => {
     res.json({ message: 'Assignment deleted successfully' });
   } catch (error) {
     console.error('Delete assignment error:', error);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: error.message || 'Server error' });
   }
 });
 

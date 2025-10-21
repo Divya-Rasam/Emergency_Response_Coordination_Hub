@@ -17,7 +17,7 @@
             border: 1px solid #ddd;
             border-radius: 5px;
         }
-        input, select, button {
+        input, select, button, textarea {
             margin: 5px;
             padding: 8px;
         }
@@ -36,6 +36,12 @@
             border: 1px solid #ddd;
             margin-top: 10px;
             white-space: pre-wrap;
+        }
+        .error {
+            color: red;
+        }
+        .success {
+            color: green;
         }
     </style>
 </head>
@@ -61,6 +67,7 @@
         <input type="password" id="loginPassword" placeholder="Password">
         <button onclick="login()">Login</button>
         <button onclick="getProfile()">Get Profile</button>
+        <button onclick="logout()">Logout</button>
     </div>
 
     <!-- Incidents Section -->
@@ -70,7 +77,12 @@
         <input type="text" id="incidentType" placeholder="Type (e.g., Fire, Accident)">
         <input type="number" id="incidentLat" placeholder="Latitude" step="any">
         <input type="number" id="incidentLon" placeholder="Longitude" step="any">
-        <input type="text" id="incidentSeverity" placeholder="Severity (low, medium, high, critical)">
+        <select id="incidentSeverity">
+            <option value="low">Low</option>
+            <option value="medium">Medium</option>
+            <option value="high">High</option>
+            <option value="critical">Critical</option>
+        </select>
         <textarea id="incidentDesc" placeholder="Description"></textarea>
         <button onclick="createIncident()">Create Incident</button>
         <button onclick="getIncidents()">Get All Incidents</button>
@@ -103,6 +115,7 @@
 
     <script>
         let authToken = localStorage.getItem('authToken');
+        let currentUser = null;
 
         // Helper function to make API calls
         async function apiCall(url, method = 'GET', body = null) {
@@ -132,8 +145,10 @@
         }
 
         // Display response
-        function displayResponse(data) {
-            document.getElementById('response').textContent = JSON.stringify(data, null, 2);
+        function displayResponse(data, isError = false) {
+            const responseElement = document.getElementById('response');
+            responseElement.textContent = JSON.stringify(data, null, 2);
+            responseElement.className = isError ? 'error' : 'success';
         }
 
         // Authentication functions
@@ -147,7 +162,7 @@
                 });
                 displayResponse(data);
             } catch (error) {
-                displayResponse({ error: error.message });
+                displayResponse({ error: error.message }, true);
             }
         }
 
@@ -158,20 +173,32 @@
                     password: document.getElementById('loginPassword').value
                 });
                 authToken = data.token;
+                currentUser = data.user;
                 localStorage.setItem('authToken', authToken);
+                localStorage.setItem('currentUser', JSON.stringify(data.user));
                 displayResponse(data);
             } catch (error) {
-                displayResponse({ error: error.message });
+                displayResponse({ error: error.message }, true);
             }
         }
 
         async function getProfile() {
             try {
                 const data = await apiCall('/api/auth/profile');
+                currentUser = data;
+                localStorage.setItem('currentUser', JSON.stringify(data));
                 displayResponse(data);
             } catch (error) {
-                displayResponse({ error: error.message });
+                displayResponse({ error: error.message }, true);
             }
+        }
+
+        function logout() {
+            authToken = null;
+            currentUser = null;
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('currentUser');
+            displayResponse({ message: 'Logged out successfully' });
         }
 
         // Incident functions
@@ -186,7 +213,7 @@
                 });
                 displayResponse(data);
             } catch (error) {
-                displayResponse({ error: error.message });
+                displayResponse({ error: error.message }, true);
             }
         }
 
@@ -195,22 +222,30 @@
                 const data = await apiCall('/api/incidents');
                 displayResponse(data);
             } catch (error) {
-                displayResponse({ error: error.message });
+                displayResponse({ error: error.message }, true);
             }
         }
 
         // Volunteer functions
         async function updateVolunteerProfile() {
             try {
+                if (!currentUser) {
+                    throw new Error('Please login first');
+                }
+                
+                if (currentUser.role !== 'volunteer') {
+                    throw new Error('Only volunteers can update their profile');
+                }
+
                 const skills = document.getElementById('volunteerSkills').value
                     .split(',').map(s => s.trim()).filter(s => s);
-                const data = await apiCall('/api/volunteers/1', 'PUT', { // Assuming user ID is 1 for testing
+                const data = await apiCall(`/api/volunteers/${currentUser.id}`, 'PUT', {
                     skills,
                     availability: document.getElementById('volunteerAvailability').value === 'true'
                 });
                 displayResponse(data);
             } catch (error) {
-                displayResponse({ error: error.message });
+                displayResponse({ error: error.message }, true);
             }
         }
 
@@ -219,20 +254,24 @@
                 const data = await apiCall('/api/volunteers');
                 displayResponse(data);
             } catch (error) {
-                displayResponse({ error: error.message });
+                displayResponse({ error: error.message }, true);
             }
         }
 
         // Assignment functions
         async function createAssignment() {
             try {
+                if (!currentUser || currentUser.role !== 'coordinator') {
+                    throw new Error('Only coordinators can create assignments');
+                }
+
                 const data = await apiCall('/api/assignments', 'POST', {
                     incident_id: parseInt(document.getElementById('assignmentIncidentId').value),
                     volunteer_id: parseInt(document.getElementById('assignmentVolunteerId').value)
                 });
                 displayResponse(data);
             } catch (error) {
-                displayResponse({ error: error.message });
+                displayResponse({ error: error.message }, true);
             }
         }
 
@@ -241,9 +280,19 @@
                 const data = await apiCall('/api/assignments');
                 displayResponse(data);
             } catch (error) {
-                displayResponse({ error: error.message });
+                displayResponse({ error: error.message }, true);
             }
         }
+
+        // Check if user is already logged in
+        window.onload = function() {
+            if (authToken) {
+                const savedUser = localStorage.getItem('currentUser');
+                if (savedUser) {
+                    currentUser = JSON.parse(savedUser);
+                }
+            }
+        };
     </script>
 </body>
 </html>
