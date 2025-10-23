@@ -9,14 +9,8 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Error handling middleware
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({ message: err.message || 'Something went wrong!' });
-});
-
 // Serve static files
-app.use(express.static(path.join(__dirname)));
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Routes
 app.use('/api/auth', require('./routes/auth'));
@@ -24,9 +18,14 @@ app.use('/api/incidents', require('./routes/incidents'));
 app.use('/api/volunteers', require('./routes/volunteers'));
 app.use('/api/assignments', require('./routes/assignments'));
 
-// Test route
+// Serve the main HTML file for all other routes
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'index.html'));
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+// Handle client-side routing
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 // Start server
