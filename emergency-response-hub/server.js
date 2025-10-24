@@ -18,13 +18,24 @@ app.use('/api/incidents', require('./routes/incidents'));
 app.use('/api/volunteers', require('./routes/volunteers'));
 app.use('/api/assignments', require('./routes/assignments'));
 
-// Serve the main HTML file for all other routes
+// Serve the main HTML file for the root route
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// Handle client-side routing
-app.get('*', (req, res) => {
+// Handle client-side routing with a middleware
+app.use((req, res, next) => {
+  // Skip if it's an API route
+  if (req.path.startsWith('/api/')) {
+    return next();
+  }
+  
+  // Skip if it's a file request (has an extension)
+  if (path.extname(req.path).length > 0) {
+    return next();
+  }
+  
+  // Otherwise, serve the index.html
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 

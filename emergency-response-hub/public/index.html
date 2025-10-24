@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emergency Response Coordination Hub</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Authentication Screen -->
+    <div id="authScreen" class="auth-screen">
+        <div class="auth-container">
+            <div class="auth-header">
+                <div class="logo-container">
+                    <div class="logo">
+                        <div class="logo-icon">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <h1>RESPONSE<span>COORD</span></h1>
+                    </div>
+                    <p class="tagline">Emergency Management System</p>
+                </div>
+            </div>
+            
+            <div class="auth-form-container">
+                <div class="auth-tabs">
+                    <button class="auth-tab active" data-tab="login">Sign In</button>
+                    <button class="auth-tab" data-tab="register">Register</button>
+                </div>
+                
+                <div class="auth-forms">
+                    <div id="loginForm" class="auth-form active">
+                        <h2>Welcome Back</h2>
+                        <p class="form-description">Sign in to your account to continue</p>
+                        
+                        <div class="form-group">
+                            <label for="loginUsername">Username</label>
+                            <div class="input-container">
+                                <i class="fas fa-user input-icon"></i>
+                                <input type="text" id="loginUsername" placeholder="Enter your username">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="loginPassword">Password</label>
+                            <div class="input-container">
+                                <i class="fas fa-lock input-icon"></i>
+                                <input type="password" id="loginPassword" placeholder="Enter your password">
+                            </div>
+                        </div>
+                        
+                        <button id="loginBtn" class="btn btn-primary btn-block">
+                            <span>Sign In</span>
+                            <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+                    
+                    <div id="registerForm" class="auth-form">
+                        <h2>Create Account</h2>
+                        <p class="form-description">Join the emergency response network</p>
+                        
+                        <div class="form-group">
+                            <label for="regUsername">Username</label>
+                            <div class="input-container">
+                                <i class="fas fa-user input-icon"></i>
+                                <input type="text" id="regUsername" placeholder="Choose a username">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="regEmail">Email</label>
+                            <div class="input-container">
+                                <i class="fas fa-envelope input-icon"></i>
+                                <input type="email" id="regEmail" placeholder="Enter your email">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="regPassword">Password</label>
+                            <div class="input-container">
+                                <i class="fas fa-lock input-icon"></i>
+                                <input type="password" id="regPassword" placeholder="Create a password">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="regRole">Role</label>
+                            <div class="input-container">
+                                <i class="fas fa-user-tag input-icon"></i>
+                                <select id="regRole">
+                                    <option value="public">Public User</option>
+                                    <option value="volunteer">Volunteer</option>
+                                    <option value="coordinator">Coordinator</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <button id="registerBtn" class="btn btn-primary btn-block">
+                            <span>Create Account</span>
+                            <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div id="authMessage" class="auth-message"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Dashboard -->
+    <div id="dashboard" class="dashboard hidden">
+        <!-- Top Navigation -->
+        <nav class="top-nav">
+            <div class="nav-container">
+                <div class="nav-brand">
+                    <div class="nav-logo">
+                        <i class="fas fa-shield-alt"></i>
+                        <span>RESPONSE<span>COORD</span></span>
+                    </div>
+                </div>
+                
+                <div class="nav-menu">
+                    <div class="search-container">
+                        <i class="fas fa-search search-icon"></i>
+                        <input type="text" class="search-input" placeholder="Search incidents, volunteers...">
+                    </div>
+                    
+                    <div class="nav-notifications">
+                        <button class="notification-btn">
+                            <i class="fas fa-bell"></i>
+                            <span class="notification-badge">3</span>
+                        </button>
+                    </div>
+                    
+                    <div class="nav-user">
+                        <div class="user-avatar">
+                            <img src="https://picsum.photos/seed/user123/40/40.jpg" alt="User Avatar">
+                        </div>
+                        <div class="user-info">
+                            <div class="user-name" id="navUserName">John Doe</div>
+                            <div class="user-role" id="navUserRole">Coordinator</div>
+                        </div>
+                        <button id="logoutBtn" class="logout-btn">
+                            <i class="fas fa-sign-out-alt"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content Area -->
+        <div class="main-container">
+            <!-- Sidebar -->
+            <aside class="sidebar">
+                <div class="sidebar-header">
+                    <h3>Navigation</h3>
+                </div>
+                
+                <ul class="sidebar-menu">
+                    <li class="sidebar-item active" data-page="dashboard">
+                        <a href="#" class="sidebar-link">
+                            <i class="fas fa-tachometer-alt sidebar-icon"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-item" data-page="incidents">
+                        <a href="#" class="sidebar-link">
+                            <i class="fas fa-exclamation-triangle sidebar-icon"></i>
+                            <span>Incidents</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-item" data-page="volunteers" id="volunteersNav">
+                        <a href="#" class="sidebar-link">
+                            <i class="fas fa-users sidebar-icon"></i>
+                            <span>Volunteers</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-item" data-page="assignments">
+                        <a href="#" class="sidebar-link">
+                            <i class="fas fa-tasks sidebar-icon"></i>
+                            <span>Assignments</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-item" data-page="profile">
+                        <a href="#" class="sidebar-link">
+                            <i class="fas fa-user sidebar-icon"></i>
+                            <span>My Profile</span>
+                        </a>
+                    </li>
+                </ul>
+                
+                <div class="sidebar-footer">
+                    <div class="status-indicator">
+                        <div class="status-dot"></div>
+                        <span>System Operational</span>
+                    </div>
+                    <div class="system-time" id="systemTime"></div>
+                </div>
+            </aside>
+
+            <!-- Content Area -->
+            <main class="content">
+                <!-- Dashboard Page -->
+                <div id="dashboardPage" class="page active">
+                    <div class="page-header">
+                        <div class="page-title">
+                            <h1>Dashboard</h1>
+                            <p>Emergency response coordination at a glance</p>
+                        </div>
+                        <div class="page-actions">
+                            <button id="newIncidentBtn" class="btn btn-primary">
+                                <i class="fas fa-plus"></i>
+                                <span>New Incident</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Stats Overview -->
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon-container">
+                                <i class="fas fa-exclamation-triangle stat-icon"></i>
+                            </div>
+                            <div class="stat-content">
+                                <div class="stat-value" id="totalIncidents">0</div>
+                                <div class="stat-label">Total Incidents</div>
+                                <div class="stat-change positive">
+                                    <i class="fas fa-arrow-up"></i>
+                                    <span>12% from last week</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-icon-container">
+                                <i class="fas fa-users stat-icon"></i>
+                            </div>
+                            <div class="stat-content">
+                                <div class="stat-value" id="totalVolunteers">0</div>
+                                <div class="stat-label">Active Volunteers</div>
+                                <div class="stat-change positive">
+                                    <i class="fas fa-arrow-up"></i>
+                                    <span>5% from last week</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-icon-container">
+                                <i class="fas fa-tasks stat-icon"></i>
+                            </div>
+                            <div class="stat-content">
+                                <div class="stat-value" id="totalAssignments">0</div>
+                                <div class="stat-label">Active Assignments</div>
+                                <div class="stat-change neutral">
+                                    <i class="fas fa-minus"></i>
+                                    <span>No change</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-icon-container">
+                                <i class="fas fa-check-circle stat-icon"></i>
+                            </div>
+                            <div class="stat-content">
+                                <div class="stat-value" id="resolvedIncidents">0</div>
+                                <div class="stat-label">Resolved Incidents</div>
+                                <div class="stat-change positive">
+                                    <i class="fas fa-arrow-up"></i>
+                                    <span>8% from last week</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Incidents -->
+                    <div class="content-card">
+                        <div class="card-header">
+                            <h2>Recent Incidents</h2>
+                            <a href="#" class="btn-link" data-page="incidents">View All</a>
+                        </div>
+                        <div class="card-content">
+                            <div class="table-responsive">
+                                <table class="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Type</th>
+                                            <th>Location</th>
+                                            <th>Severity</th>
+                                            <th>Status</th>
+                                            <th>Reported</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="recentIncidentsTable">
+                                        <!-- Data will be populated here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Incidents Page -->
+                <div id="incidentsPage" class="page">
+                    <div class="page-header">
+                        <div class="page-title">
+                            <h1>Incident Management</h1>
+                            <p>Monitor and manage emergency incidents</p>
+                        </div>
+                        <div class="page-actions">
+                            <button id="newIncidentBtn2" class="btn btn-primary">
+                                <i class="fas fa-plus"></i>
+                                <span>New Incident</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="content-card">
+                        <div class="card-header">
+                            <h2>All Incidents</h2>
+                            <div class="card-actions">
+                                <div class="filter-dropdown">
+                                    <button class="filter-btn">
+                                        <span>Filter by Status</span>
+                                        <i class="fas fa-chevron-down"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-content">
+                            <div class="table-responsive">
+                                <table class="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Type</th>
+                                            <th>Location</th>
+                                            <th>Severity</th>
+                                            <th>Status</th>
+                                            <th>Reported By</th>
+                                            <th>Date</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="incidentsTable">
+                                        <!-- Data will be populated here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Volunteers Page -->
+                <div id="volunteersPage" class="page">
+                    <div class="page-header">
+                        <div class="page-title">
+                            <h1>Volunteer Management</h1>
+                            <p>Manage volunteer resources and assignments</p>
+                        </div>
+                    </div>
+
+                    <div class="content-card">
+                        <div class="card-header">
+                            <h2>Volunteer Network</h2>
+                            <div class="card-actions">
+                                <div class="filter-dropdown">
+                                    <button class="filter-btn">
+                                        <span>Filter by Availability</span>
+                                        <i class="fas fa-chevron-down"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-content">
+                            <div class="table-responsive">
+                                <table class="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Name</th>
+                                            <th>Skills</th>
+                                            <th>Availability</th>
+                                            <th>Status</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="volunteersTable">
+                                        <!-- Data will be populated here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Assignments Page -->
+                <div id="assignmentsPage" class="page">
+                    <div class="page-header">
+                        <div class="page-title">
+                            <h1>Assignment Management</h1>
+                            <p>Track and manage volunteer assignments</p>
+                        </div>
+                        <div class="page-actions">
+                            <button id="newAssignmentBtn" class="btn btn-primary">
+                                <i class="fas fa-plus"></i>
+                                <span>New Assignment</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="content-card">
+                        <div class="card-header">
+                            <h2>Active Assignments</h2>
+                            <div class="card-actions">
+                                <div class="filter-dropdown">
+                                    <button class="filter-btn">
+                                        <span>Filter by Status</span>
+                                        <i class="fas fa-chevron-down"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-content">
+                            <div class="table-responsive">
+                                <table class="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Incident</th>
+                                            <th>Volunteer</th>
+                                            <th>Status</th>
+                                            <th>Assigned By</th>
+                                            <th>Date</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="assignmentsTable">
+                                        <!-- Data will be populated here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Profile Page -->
+                <div id="profilePage" class="page">
+                    <div class="page-header">
+                        <div class="page-title">
+                            <h1>My Profile</h1>
+                            <p>Manage your account and preferences</p>
+                        </div>
+                    </div>
+
+                    <div class="profile-container">
+                        <div class="profile-sidebar">
+                            <div class="profile-avatar">
+                                <img src="https://picsum.photos/seed/user123/120/120.jpg" alt="Profile Avatar">
+                                <button class="btn-change-avatar">
+                                    <i class="fas fa-camera"></i>
+                                </button>
+                            </div>
+                            <div class="profile-info">
+                                <h3 id="profileName">John Doe</h3>
+                                <p id="profileRoleDisplay">Coordinator</p>
+                            </div>
+                        </div>
+                        
+                        <div class="profile-content">
+                            <div class="content-card">
+                                <div class="card-header">
+                                    <h2>Account Information</h2>
+                                </div>
+                                <div class="card-content">
+                                    <form id="profileForm">
+                                        <div class="form-group">
+                                            <label for="profileUsername">Username</label>
+                                            <div class="input-container">
+                                                <i class="fas fa-user input-icon"></i>
+                                                <input type="text" id="profileUsername" readonly>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="form-group">
+                                            <label for="profileEmail">Email</label>
+                                            <div class="input-container">
+                                                <i class="fas fa-envelope input-icon"></i>
+                                                <input type="email" id="profileEmail" readonly>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="form-group">
+                                            <label for="profileRole">Role</label>
+                                            <div class="input-container">
+                                                <i class="fas fa-user-tag input-icon"></i>
+                                                <input type="text" id="profileRole" readonly>
+                                            </div>
+                                        </div>
+                                        
+                                        <div id="volunteerProfileFields" class="hidden">
+                                            <div class="form-group">
+                                                <label for="profileSkills">Skills (comma separated)</label>
+                                                <div class="input-container">
+                                                    <i class="fas fa-tools input-icon"></i>
+                                                    <input type="text" id="profileSkills" placeholder="e.g., first aid, rescue">
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="form-group">
+                                                <label for="profileAvailability">Availability</label>
+                                                <div class="input-container">
+                                                    <i class="fas fa-calendar-check input-icon"></i>
+                                                    <select id="profileAvailability">
+                                                        <option value="true">Available</option>
+                                                        <option value="false">Not Available</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="form-group">
+                                                <label for="profileStatus">Status</label>
+                                                <div class="input-container">
+                                                    <i class="fas fa-signal input-icon"></i>
+                                                    <select id="profileStatus">
+                                                        <option value="available">Available</option>
+                                                        <option value="assigned">Assigned</option>
+                                                        <option value="unavailable">Unavailable</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <button type="submit" class="btn btn-primary">
+                                            <span>Update Profile</span>
+                                            <i class="fas fa-save"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div id="incidentModal" class="modal">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h2>Report New Incident</h2>
+                <button class="modal-close">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-content">
+                <form id="incidentForm">
+                    <div class="form-group">
+                        <label for="incidentType">Incident Type</label>
+                        <div class="input-container">
+                            <i class="fas fa-exclamation-triangle input-icon"></i>
+                            <input type="text" id="incidentType" placeholder="e.g., Fire, Accident" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="incidentLatitude">Latitude</label>
+                            <div class="input-container">
+                                <i class="fas fa-map-marker-alt input-icon"></i>
+                                <input type="number" id="incidentLatitude" step="any" placeholder="e.g., 40.7128" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="incidentLongitude">Longitude</label>
+                            <div class="input-container">
+                                <i class="fas fa-map-marker-alt input-icon"></i>
+                                <input type="number" id="incidentLongitude" step="any" placeholder="e.g., -74.0060" required>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="incidentSeverity">Severity</label>
+                        <div class="input-container">
+                            <i class="fas fa-exclamation-circle input-icon"></i>
+                            <select id="incidentSeverity" required>
+                                <option value="low">Low</option>
+                                <option value="medium">Medium</option>
+                                <option value="high">High</option>
+                                <option value="critical">Critical</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="incidentDescription">Description</label>
+                        <div class="input-container">
+                            <i class="fas fa-align-left input-icon"></i>
+                            <textarea id="incidentDescription" rows="3" placeholder="Provide details about the incident"></textarea>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary btn-block">
+                        <span>Report Incident</span>
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="assignmentModal" class="modal">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h2>Create New Assignment</h2>
+                <button class="modal-close">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-content">
+                <form id="assignmentForm">
+                    <div class="form-group">
+                        <label for="assignmentIncident">Incident</label>
+                        <div class="input-container">
+                            <i class="fas fa-exclamation-triangle input-icon"></i>
+                            <select id="assignmentIncident" required>
+                                <!-- Options will be populated dynamically -->
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="assignmentVolunteer">Volunteer</label>
+                        <div class="input-container">
+                            <i class="fas fa-users input-icon"></i>
+                            <select id="assignmentVolunteer" required>
+                                <!-- Options will be populated dynamically -->
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary btn-block">
+                        <span>Create Assignment</span>
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="updateAssignmentModal" class="modal">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h2>Update Assignment Status</h2>
+                <button class="modal-close">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-content">
+                <form id="updateAssignmentForm">
+                    <div class="form-group">
+                        <label for="updateAssignmentStatus">Status</label>
+                        <div class="input-container">
+                            <i class="fas fa-tasks input-icon"></i>
+                            <select id="updateAssignmentStatus" required>
+                                <option value="assigned">Assigned</option>
+                                <option value="accepted">Accepted</option>
+                                <option value="completed">Completed</option>
+                                <option value="declined">Declined</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary btn-block">
+                        <span>Update Status</span>
+                        <i class="fas fa-save"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="notification" class="notification">
+        <div class="notification-content">
+            <div class="notification-icon">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <div class="notification-message">
+                <p>Operation completed successfully</p>
+            </div>
+        </div>
+        <button class="notification-close">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+
+    <script src="js/app.js"></script>
+</body>
+</html>

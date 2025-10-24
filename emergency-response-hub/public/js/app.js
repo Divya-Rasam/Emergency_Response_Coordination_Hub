@@ -3,7 +3,7 @@ let authToken = localStorage.getItem('authToken');
 let currentUser = null;
 
 // DOM elements
-const authModal = document.getElementById('authModal');
+const authScreen = document.getElementById('authScreen');
 const dashboard = document.getElementById('dashboard');
 const loginForm = document.getElementById('loginForm');
 const registerForm = document.getElementById('registerForm');
@@ -12,7 +12,7 @@ const registerBtn = document.getElementById('registerBtn');
 const logoutBtn = document.getElementById('logoutBtn');
 const authMessage = document.getElementById('authMessage');
 const authTabs = document.querySelectorAll('.auth-tab');
-const navItems = document.querySelectorAll('.nav-item');
+const navItems = document.querySelectorAll('.sidebar-item');
 const pages = document.querySelectorAll('.page');
 const notification = document.getElementById('notification');
 
@@ -20,10 +20,11 @@ const notification = document.getElementById('notification');
 const incidentModal = document.getElementById('incidentModal');
 const assignmentModal = document.getElementById('assignmentModal');
 const updateAssignmentModal = document.getElementById('updateAssignmentModal');
-const closeModalButtons = document.querySelectorAll('.close');
+const modalCloseButtons = document.querySelectorAll('.modal-close');
 
 // Form elements
 const newIncidentBtn = document.getElementById('newIncidentBtn');
+const newIncidentBtn2 = document.getElementById('newIncidentBtn2');
 const newAssignmentBtn = document.getElementById('newAssignmentBtn');
 const incidentForm = document.getElementById('incidentForm');
 const assignmentForm = document.getElementById('assignmentForm');
@@ -39,15 +40,19 @@ document.addEventListener('DOMContentLoaded', () => {
             currentUser = JSON.parse(savedUser);
             showDashboard();
             loadDashboardData();
+            updateSystemTime();
         } else {
-            showAuthModal();
+            showAuthScreen();
         }
     } else {
-        showAuthModal();
+        showAuthScreen();
     }
 
     // Set up event listeners
     setupEventListeners();
+    
+    // Update system time every minute
+    setInterval(updateSystemTime, 60000);
 });
 
 // Set up event listeners
@@ -77,7 +82,7 @@ function setupEventListeners() {
     });
 
     // Modals
-    closeModalButtons.forEach(btn => {
+    modalCloseButtons.forEach(btn => {
         btn.addEventListener('click', () => {
             btn.closest('.modal').style.display = 'none';
         });
@@ -93,6 +98,10 @@ function setupEventListeners() {
     newIncidentBtn.addEventListener('click', () => {
         incidentModal.style.display = 'block';
     });
+    
+    newIncidentBtn2.addEventListener('click', () => {
+        incidentModal.style.display = 'block';
+    });
 
     newAssignmentBtn.addEventListener('click', () => {
         populateAssignmentForm();
@@ -104,6 +113,11 @@ function setupEventListeners() {
     assignmentForm.addEventListener('submit', handleAssignmentSubmit);
     updateAssignmentForm.addEventListener('submit', handleUpdateAssignmentSubmit);
     profileForm.addEventListener('submit', handleProfileSubmit);
+    
+    // Notification close
+    document.querySelector('.notification-close').addEventListener('click', () => {
+        notification.classList.remove('show');
+    });
 }
 
 // Switch between login and register tabs
@@ -127,29 +141,32 @@ function switchAuthTab(tabName) {
     authMessage.className = 'auth-message';
 }
 
-// Show auth modal
-function showAuthModal() {
-    authModal.style.display = 'block';
+// Show auth screen
+function showAuthScreen() {
+    authScreen.style.display = 'flex';
     dashboard.classList.add('hidden');
     switchAuthTab('login');
 }
 
 // Show dashboard
 function showDashboard() {
-    authModal.style.display = 'none';
+    authScreen.style.display = 'none';
     dashboard.classList.remove('hidden');
     
     // Update user info
-    document.getElementById('userName').textContent = currentUser.username;
-    document.getElementById('userRole').textContent = currentUser.role;
+    document.getElementById('navUserName').textContent = currentUser.username;
+    document.getElementById('navUserRole').textContent = currentUser.role;
+    document.getElementById('profileName').textContent = currentUser.username;
+    document.getElementById('profileRoleDisplay').textContent = 
+        currentUser.role.charAt(0).toUpperCase() + currentUser.role.slice(1);
     
     // Show/hide coordinator-only elements
     if (currentUser.role !== 'coordinator') {
         document.getElementById('volunteersNav').style.display = 'none';
         document.getElementById('newAssignmentBtn').style.display = 'none';
     } else {
-        document.getElementById('volunteersNav').style.display = 'flex';
-        document.getElementById('newAssignmentBtn').style.display = 'inline-block';
+        document.getElementById('volunteersNav').style.display = 'list-item';
+        document.getElementById('newAssignmentBtn').style.display = 'inline-flex';
     }
     
     // Show/hide volunteer profile fields
@@ -206,6 +223,18 @@ function loadPageData(pageName) {
     }
 }
 
+// Update system time
+function updateSystemTime() {
+    const now = new Date();
+    const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const dateString = now.toLocaleDateString();
+    
+    const systemTimeElement = document.getElementById('systemTime');
+    if (systemTimeElement) {
+        systemTimeElement.textContent = `${dateString} ${timeString}`;
+    }
+}
+
 // Load dashboard data
 async function loadDashboardData() {
     try {
@@ -229,10 +258,15 @@ async function loadDashboardData() {
             row.innerHTML = `
                 <td>${incident.id}</td>
                 <td>${incident.type}</td>
-                <td><span class="status-badge severity-${incident.severity}">${incident.severity}</span></td>
+                <td>${incident.latitude.toFixed(4)}, ${incident.longitude.toFixed(4)}</td>
+                <td><span class="severity-badge severity-${incident.severity}">${incident.severity}</span></td>
                 <td><span class="status-badge status-${incident.status}">${incident.status}</span></td>
-                <td>${incident.reporter.username}</td>
                 <td>${formatDate(incident.createdAt)}</td>
+                <td>
+                    ${currentUser.role === 'coordinator' ? `
+                        <button class="btn btn-sm btn-danger" onclick="deleteIncident(${incident.id})">Delete</button>
+                    ` : ''}
+                </td>
             `;
             recentIncidentsTable.appendChild(row);
         });
@@ -253,10 +287,11 @@ async function loadIncidents() {
             row.innerHTML = `
                 <td>${incident.id}</td>
                 <td>${incident.type}</td>
-                <td>${incident.latitude}, ${incident.longitude}</td>
-                <td><span class="status-badge severity-${incident.severity}">${incident.severity}</span></td>
+                <td>${incident.latitude.toFixed(4)}, ${incident.longitude.toFixed(4)}</td>
+                <td><span class="severity-badge severity-${incident.severity}">${incident.severity}</span></td>
                 <td><span class="status-badge status-${incident.status}">${incident.status}</span></td>
                 <td>${incident.reporter.username}</td>
+                <td>${formatDate(incident.createdAt)}</td>
                 <td>
                     ${currentUser.role === 'coordinator' ? `
                         <button class="btn btn-sm btn-danger" onclick="deleteIncident(${incident.id})">Delete</button>
@@ -444,7 +479,7 @@ function handleLogout() {
     currentUser = null;
     localStorage.removeItem('authToken');
     localStorage.removeItem('currentUser');
-    showAuthModal();
+    showAuthScreen();
 }
 
 // Handle incident submit
@@ -629,13 +664,29 @@ function showAuthMessage(message, type) {
 
 // Show notification
 function showNotification(message, type = 'success') {
-    notification.textContent = message;
-    notification.className = `notification ${type}`;
-    notification.classList.add('show');
+    const notificationEl = document.getElementById('notification');
+    const notificationMessage = notificationEl.querySelector('.notification-message p');
+    const notificationIcon = notificationEl.querySelector('.notification-icon i');
     
+    // Set message
+    notificationMessage.textContent = message;
+    
+    // Set icon based on type
+    if (type === 'success') {
+        notificationIcon.className = 'fas fa-check-circle';
+        notificationEl.className = 'notification success show';
+    } else if (type === 'error') {
+        notificationIcon.className = 'fas fa-exclamation-circle';
+        notificationEl.className = 'notification error show';
+    } else if (type === 'warning') {
+        notificationIcon.className = 'fas fa-exclamation-triangle';
+        notificationEl.className = 'notification warning show';
+    }
+    
+    // Auto-hide after 5 seconds
     setTimeout(() => {
-        notification.classList.remove('show');
-    }, 3000);
+        notificationEl.classList.remove('show');
+    }, 5000);
 }
 
 // Format date
